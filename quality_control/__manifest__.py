@@ -17,13 +17,13 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': [],
+    'depends': ['stock'],
 
     # always loaded
     'data': [
-        # 'security/ir.model.access.csv',
-        # 'views/views.xml',
-        # 'views/templates.xml',
+        'security/ir.model.access.csv',
+        'views/quality_check_views.xml',
+        'views/menu.xml',
     ],
     # only loaded in demonstration mode
     'demo': [

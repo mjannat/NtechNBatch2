@@ -1,33 +1,81 @@
+# -*- coding: utf-8 -*-
 from odoo import api, fields, models
+from odoo.exceptions import ValidationError
 
+RESULT = [
+    ("pass", "Pass"),
+    ("fail", "Fail"),
+],
 
-class QualityControl(models.Model):
-    _name = "quality.control"
-    _description = "Inventory Customization For QC"
+class QualityCheck(models.Model):
+    _name = "quality.check"
+    _description = "Quality Control Check"
+    _rec_name = "name"
 
-    code = fields.Char(string="Code", required=True)
-    final_approve_user_id = fields.Many2one('res.users', "Final Approver", required=False)
-    qc_state = fields.Selection(
+    # ==========================================
+    # FIELD DEFINITIONS
+    # ==========================================
+    name = fields.Char(
+        string="Reference",
+        required=False,
+        copy=False,
+        readonly=False,
+        default="New",
+    )
+    inspector_id = fields.Many2one("res.users", "Main Checker", required="True")
+    quantity_lines = fields.One2many("quality.check.line", "line_id", string="Product Lines")
+    additional_inspector_ids = fields.Many2many(
+        comodel_name="res.users",
+        string="Additional Inspectors",
+    )
+    check_date = fields.Date(
+        string="Check Date",
+        default=fields.Date.today,
+    )
+    remarks = fields.Text(
+        string="Remarks",
+    )
+    result = fields.Selection(
+        selection=RESULT,
+        string="Result",
+        tracking=True,
+    )
+    state = fields.Selection(
         selection=[
             ("draft", "Draft"),
-            ("in_progress", "In Progress"),
+            ("hod", "HOD"),
+            ("md", "MD"),
             ("approved", "Approved"),
-            ("partially_approved", "Approved"),
-            ("rejected", "Rejected"),
         ],
-        string="QC State",
+        string="Status",
         default="draft",
+        tracking=True,
     )
-    remarks = fields.Text(string="Remarks")
-    line_ids = fields.One2many('quality.control.line', "qc_id", string="QC Lines")
-    additional_inspector_ids = fields.Many2many(
-        comodel_name='res.users',
-        relation='quality_check_res_users_rel',
-        column1='check_id',
-        column2='user_id',
-        string='Additional Inspectors'
-    )
+    # quantity_lines = fields.One2many('quality.check.line', 'line_id','Product Line')
+    #
+    # # ==========================================
+    # # ORM OVERRIDES
+    # # # ==========================================
+    # # @api.model
+    # # def create(self, vals_list):
+    # #     """Generates sequence reference number on creation."""
+    # #     for vals in vals_list:
+    # #         if vals.get("name", "New") == "New":
+    # #             seq_code = "quality.check.code"
+    # #             vals["name"] = self.env["ir.sequence"].next_by_code(seq_code) or "New"
+    # #     return super(QualityCheck, self).create(vals_list)
 
-
-
-
+    # # ==========================================
+    # # BUSINESS ACTIONS
+    # # ==========================================
+    # def action_confirm(self):
+    #     """Moves the state to confirmed."""
+    #     for record in self:
+    #         record.state = "confirmed"
+    #
+    # def action_done(self):
+    #     """Validates result and sets state to done."""
+    #     for record in self:
+    #         if not record.result:
+    #             raise ValidationError("Please select Pass or Fail before completion.")
+    #         record.state = "done"
