@@ -53,7 +53,7 @@
                                     <field name="product_id"/>
                                     <field name="rec_qty"/>
                                     <field name="damage_qty"/>
-                                    <field name="remain_qty"/>
+                                    <field name="remain_qty" force_save="1"/>
                                 </list>
                             </field>
                         </page>

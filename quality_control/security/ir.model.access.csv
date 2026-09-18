@@ -1,3 +1,7 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_quality_check,quality.check.,model_quality_check,,1,1,1,1
-access_quality_check_line,quality.check.line,model_quality_check_line,,1,1,1,1
+
+access_quality_check_user,quality.check.user,model_quality_check,group_quality_check_user,1,1,1,1
+access_quality_check_line_user,quality.check.line.user,model_quality_check_line,group_quality_check_user,1,1,1,1
+
+access_quality_check_supervisor,quality.check.supervisor,model_quality_check,group_quality_check_supervisor,1,1,1,0
+access_quality_check_line_supervisor,quality.check.line.supervisor,model_quality_check_line,group_quality_check_supervisor,1,0,0,0

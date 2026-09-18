@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from email.policy import default
+
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
@@ -6,6 +8,7 @@ RESULT = [
     ("pass", "Pass"),
     ("fail", "Fail"),
 ],
+
 
 class QualityCheck(models.Model):
     _name = "quality.check"
@@ -22,7 +25,8 @@ class QualityCheck(models.Model):
         readonly=False,
         default="New",
     )
-    inspector_id = fields.Many2one("res.users", "Main Checker", required="True")
+    inspector_id = fields.Many2one("res.users", "Main Checker", required="True",
+                                   readonly=True, store=True, default=lambda self: self.env.user)
     quantity_lines = fields.One2many("quality.check.line", "line_id", string="Product Lines")
     additional_inspector_ids = fields.Many2many(
         comodel_name="res.users",
@@ -51,6 +55,7 @@ class QualityCheck(models.Model):
         default="draft",
         tracking=True,
     )
+
     # quantity_lines = fields.One2many('quality.check.line', 'line_id','Product Line')
     #
     # # ==========================================
@@ -79,3 +84,18 @@ class QualityCheck(models.Model):
     #         if not record.result:
     #             raise ValidationError("Please select Pass or Fail before completion.")
     #         record.state = "done"
+
+    @api.onchange("inspector_id")
+    def _onchange_inspector_id(self):
+        if self.inspector_id:
+            self.additional_inspector_ids = [(6, 0, [self.inspector_id.id])]
+            self.remarks = "The main inspector is: %s" % self.inspector_id.name
+
+    @api.ondelete(at_uninstall=False)
+    def _ondelete_check(self):
+        """Prevents deletion of quality check lines if the parent quality check is not in draft state."""
+        for rec in self:
+            if rec.state != "draft":
+                raise ValidationError(
+                    "You can only delete QC it is in draft state."
+                )
