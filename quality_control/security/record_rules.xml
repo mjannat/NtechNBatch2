@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- noupdate="0" so groups/privileges update on module upgrade -->
+    <data noupdate="0">
+        <record id="rule_quality_check_user" model="ir.rule">
+            <field name="name">User Quality Checks (Own Only)</field>
+            <field name="model_id" ref="model_quality_check"/>
+            <field name="domain_force">[('inspector_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_quality_check_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+    </data>
+</odoo>
