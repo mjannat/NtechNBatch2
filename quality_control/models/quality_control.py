@@ -9,6 +9,15 @@ RESULT = [
     ("fail", "Fail"),
 ],
 
+STATE = [
+    ('draft', 'Draft'),
+    ('manager', 'Manager'),
+    ('supervisor', 'Supervisor'),
+    ('approved', 'Approved'),
+    ('cancel', 'Cancel'),
+
+]
+
 
 class QualityCheck(models.Model):
     _name = "quality.check"
@@ -45,16 +54,19 @@ class QualityCheck(models.Model):
         tracking=True,
     )
     state = fields.Selection(
-        selection=[
-            ("draft", "Draft"),
-            ("hod", "HOD"),
-            ("md", "MD"),
-            ("approved", "Approved"),
-        ],
+        selection=STATE,
         string="Status",
         default="draft",
         tracking=True,
     )
+
+    is_field_readonly = fields.Boolean(string="Is Field Readonly", default=False,
+                                       compute="_compute_is_field_readonly")
+
+    @api.depends('state')
+    def _compute_is_field_readonly(self):
+        for rec in self:
+            rec.is_field_readonly = rec.state in ['manager', 'supervisor', 'approved', 'cancel']
 
     # quantity_lines = fields.One2many('quality.check.line', 'line_id','Product Line')
     #
@@ -70,20 +82,26 @@ class QualityCheck(models.Model):
     # #             vals["name"] = self.env["ir.sequence"].next_by_code(seq_code) or "New"
     # #     return super(QualityCheck, self).create(vals_list)
 
-    # # ==========================================
-    # # BUSINESS ACTIONS
-    # # ==========================================
-    # def action_confirm(self):
-    #     """Moves the state to confirmed."""
-    #     for record in self:
-    #         record.state = "confirmed"
-    #
-    # def action_done(self):
-    #     """Validates result and sets state to done."""
-    #     for record in self:
-    #         if not record.result:
-    #             raise ValidationError("Please select Pass or Fail before completion.")
-    #         record.state = "done"
+    # ==========================================
+    # BUSINESS ACTIONS
+    # ==========================================
+    def action_send_to_manager(self):
+        """Moves the state to confirmed."""
+        if self.state == 'draft':
+            self.state = 'manager'
+
+    def action_send_to_supervisor(self):
+        """Moves the state to confirmed."""
+        if self.state == 'manager':
+            self.state = 'supervisor'
+
+    def action_cancel(self):
+        self.state = 'cancel'
+
+    def action_approved(self):
+        """Validates result and sets state to done."""
+        self.state = 'approved'
+        self.result = 'pass'
 
     @api.onchange("inspector_id")
     def _onchange_inspector_id(self):
