@@ -21,8 +21,8 @@
 
     # always loaded
     'data': [
-        'security/ir.model.access.csv',
         'security/quality_security.xml',
+        'security/ir.model.access.csv',
         'security/record_rules.xml',
         'views/quality_check_views.xml',
         'views/menu.xml',
