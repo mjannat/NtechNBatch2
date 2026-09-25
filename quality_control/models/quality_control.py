@@ -3,6 +3,7 @@ from email.policy import default
 
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
+from datetime import timedelta
 
 RESULT = [
     ("pass", "Pass"),
@@ -86,9 +87,20 @@ class QualityCheck(models.Model):
     # BUSINESS ACTIONS
     # ==========================================
     def action_send_to_manager(self):
-        """Moves the state to confirmed."""
-        if self.state == 'draft':
-            self.state = 'manager'
+        """Move to manager state and send notification."""
+
+        template = self.env.ref(
+            "quality_control.email_template_quality_check_manager",
+            raise_if_not_found=False,
+        )
+        for rec in self:
+            if rec.state == "draft":
+                rec.state = "manager"
+        if template:
+            template.send_mail(
+                rec.id,
+                force_send=True,
+            )
 
     def action_send_to_supervisor(self):
         """Moves the state to confirmed."""
@@ -117,3 +129,15 @@ class QualityCheck(models.Model):
                 raise ValidationError(
                     "You can only delete QC it is in draft state."
                 )
+
+    def _cron_auto_cancel_stale_drafts(self):
+        """Cancel drafts older than 7 days."""
+
+        limit_date = fields.Date.today() - timedelta(days=7)
+        stale_checks = self.search([
+            ("state", "=", "draft"),
+            # ("create_date", "<", limit_date),
+        ])
+        for record in stale_checks:
+            record.state = "cancel"
+

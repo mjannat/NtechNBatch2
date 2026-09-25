@@ -24,6 +24,8 @@
         'security/quality_security.xml',
         'security/ir.model.access.csv',
         'security/record_rules.xml',
+        'data/email_templates.xml',
+        'data/cron.xml',
         'views/quality_check_views.xml',
         'views/menu.xml',
     ],

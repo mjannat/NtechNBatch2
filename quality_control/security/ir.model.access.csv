@@ -5,3 +5,6 @@ access_quality_check_line_user,quality.check.line.user,model_quality_check_line,
 
 access_quality_check_supervisor,quality.check.supervisor,model_quality_check,group_quality_check_supervisor,1,1,1,0
 access_quality_check_line_supervisor,quality.check.line.supervisor,model_quality_check_line,group_quality_check_supervisor,1,0,0,0
+
+access_quality_check_supervisor,quality.check.supervisor,model_quality_check,group_quality_check_supervisor,1,1,1,0
+access_quality_check_line_supervisor,quality.check.line.supervisor,model_quality_check_line,group_quality_check_supervisor,1,0,0,0
